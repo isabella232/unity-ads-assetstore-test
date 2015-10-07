@@ -5,6 +5,11 @@ using UnityEngine.Advertisements;
 
 public class Main : MonoBehaviour
 {
+	void Start ()
+	{
+		Log (String.Format ("Ads asset store version: {0}", Advertisement.version));
+	}
+
 	void Update ()
 	{
 		UIController ui = UIController.Instance;

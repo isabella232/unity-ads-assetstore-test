@@ -2,7 +2,7 @@
 
 public class UIController : MonoBehaviour
 {
-	public UnityEngine.UI.Text GameIdInput;
+	public UnityEngine.UI.InputField GameIdInput;
 	public UnityEngine.UI.Button InitializeButton;
 	public UnityEngine.UI.Button ShowDefaultAdButton;
 	public UnityEngine.UI.Button ShowRewardedAdButton;
@@ -25,7 +25,15 @@ public class UIController : MonoBehaviour
 		}
 	}
 
-	void Update()
+	void Start ()
+	{
+		if (PlayerPrefs.HasKey ("GameId"))
+		{
+			GameIdInput.text = PlayerPrefs.GetString ("GameId");
+		}
+	}
+
+	void Update ()
 	{
 		UpdateUI ();
 	}
@@ -45,6 +53,7 @@ public class UIController : MonoBehaviour
 	public void InitializeAds()
 	{
 		Main.InitializeAds (GameIdInput.text);
+		PlayerPrefs.SetString ("GameId", GameIdInput.text);
 	}
 
 	public void ShowDefaultAd()

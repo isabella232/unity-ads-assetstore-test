@@ -87,7 +87,7 @@ PlayerSettings:
   APKExpansionFiles: 0
   StripUnusedMeshComponents: 0
   iPhoneSdkVersion: 988
-  iPhoneTargetOSVersion: 20
+  iPhoneTargetOSVersion: 22
   uIPrerenderedIcon: 0
   uIRequiresPersistentWiFi: 0
   uIStatusBarHidden: 1
@@ -262,7 +262,13 @@ PlayerSettings:
   tizenMicrophonePermissions: 0
   stvDeviceAddress: 
   wp8UnprocessedPlugins: []
-  intPropertyNames: []
+  intPropertyNames:
+  - iOS::Architecture
+  - iOS::EnableIncrementalBuildSupportForIl2cpp
+  - iOS::ScriptingBackend
+  iOS::Architecture: 2
+  iOS::EnableIncrementalBuildSupportForIl2cpp: 0
+  iOS::ScriptingBackend: 1
   firstStreamedLevelWithResources: 0
   unityRebuildLibraryVersion: 9
   unityForwardCompatibleVersion: 39

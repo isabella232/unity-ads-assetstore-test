@@ -27,7 +27,7 @@ public static class AutoBuilder
 	[MenuItem ("File/AutoBuilder/iOS")]
 	static void PerformiOSBuild ()
 	{
-		EditorUserBuildSettings.SwitchActiveBuildTarget (BuildTarget.iPhone);
-		BuildPipeline.BuildPlayer (GetScenePaths (), "Builds/iOS", BuildTarget.iPhone, BuildOptions.None);
+		EditorUserBuildSettings.SwitchActiveBuildTarget (BuildTarget.iOS);
+		BuildPipeline.BuildPlayer (GetScenePaths (), "Builds/iOS", BuildTarget.iOS, BuildOptions.None);
 	}
 }

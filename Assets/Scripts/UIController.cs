@@ -10,6 +10,8 @@ public class UIController : MonoBehaviour
 	public GameObject ConfigPanel;
 	public UnityEngine.UI.InputField DefaultAdZoneIdInput;
 	public UnityEngine.UI.InputField RewardedAdZoneIdInput;
+	public UnityEngine.UI.Toggle TestModeToggle;
+	public Transform BackgroundImage;
 
 	internal bool AdsInitialized;
 
@@ -34,6 +36,12 @@ public class UIController : MonoBehaviour
 
 	void Start ()
 	{
+		// manually scale background picture
+		float scaleX = (0.75f/960) * (float)Screen.width;
+		float scaleY = (0.75f/375) * (float)Screen.height;
+		float scale = Mathf.Max (scaleX, scaleY);
+		BackgroundImage.localScale = new Vector2 (scale, scale);
+
 		ConfigPanel.SetActive (false);
 		if (PlayerPrefs.HasKey (GameIdPlayerPrefsKey))
 		{
@@ -64,6 +72,7 @@ public class UIController : MonoBehaviour
 	
 	public void UpdateUI ()
 	{
+		GameIdInput.interactable = !AdsInitialized;
 		InitializeButton.interactable = !AdsInitialized;
 		ShowDefaultAdButton.interactable = AdsInitialized;
 		ShowRewardedAdButton.interactable = AdsInitialized;
@@ -76,7 +85,7 @@ public class UIController : MonoBehaviour
 
 	public void InitializeAds ()
 	{
-		Main.InitializeAds (GameIdInput.text);
+		Main.InitializeAds (GameIdInput.text, TestModeToggle.isOn);
 		PlayerPrefs.SetString (GameIdPlayerPrefsKey, GameIdInput.text);
 		PlayerPrefs.SetString (DefaultAdZoneIdPlayerPrefsKey, DefaultAdZoneIdInput.text);
 		PlayerPrefs.SetString (RewardedAdZoneIdPlayerPrefsKey, RewardedAdZoneIdInput.text);

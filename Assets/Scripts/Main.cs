@@ -7,7 +7,7 @@ public class Main : MonoBehaviour
 {
 	void Start ()
 	{
-		Log (String.Format ("Ads asset store version: {0}", Advertisement.version));
+		Log (String.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Advertisement.version));
 	}
 
 	void Update ()
@@ -20,7 +20,7 @@ public class Main : MonoBehaviour
 		}
 	}
 
-	public static void InitializeAds (string gameId)
+	public static void InitializeAds (string gameId, bool testMode)
 	{
 		if (!Advertisement.isSupported)
 		{
@@ -35,7 +35,7 @@ public class Main : MonoBehaviour
 		}
 
 		Log (string.Format ("Initializing ads for game id {0}", gameId));
-		Advertisement.Initialize (gameId);
+		Advertisement.Initialize (gameId, testMode);
 	}
 
 	public static void ShowAd ()

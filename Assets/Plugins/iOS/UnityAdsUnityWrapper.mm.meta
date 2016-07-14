@@ -1,4 +1,7 @@
 fileFormatVersion: 2
-guid: f3f89ecd516784724917f626f203ac0f
-DefaultImporter:
-  userData: 
+guid: ecb70c48014d7481b9e8cd2adc66074b
+PluginImporter:
+  serializedVersion: 1
+  platformData:
+    iOS:
+      enabled: 1

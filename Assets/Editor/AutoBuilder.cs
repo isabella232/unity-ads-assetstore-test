@@ -8,7 +8,7 @@ public static class AutoBuilder
 {
 	static string GetProjectName ()
 	{
-		string[] s = Application.dataPath.Split('/');
+		string[] s = Application.dataPath.Split ('/');
 		return s[s.Length - 2];
 	}
 	
@@ -16,12 +16,19 @@ public static class AutoBuilder
 	{
 		string[] scenes = new string[EditorBuildSettings.scenes.Length];
 		
-		for(int i = 0; i < scenes.Length; i++)
+		for (int i = 0; i < scenes.Length; i++)
 		{
 			scenes[i] = EditorBuildSettings.scenes[i].path;
 		}
 		
 		return scenes;
+	}
+
+	[MenuItem("File/AutoBuilder/Android")]
+	static void PerformAndroidBuild ()
+	{
+		EditorUserBuildSettings.SwitchActiveBuildTarget (BuildTarget.Android);
+		BuildPipeline.BuildPlayer (GetScenePaths (), "Builds/Android.apk", BuildTarget.Android, BuildOptions.None);
 	}
 
 	[MenuItem ("File/AutoBuilder/iOS")]

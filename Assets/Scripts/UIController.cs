@@ -2,6 +2,12 @@
 
 public class UIController : MonoBehaviour
 {
+	#if UNITY_ANDROID
+	const string DefaultGameId = "1053943";
+	#else
+	const string DefaultGameId = "1065097";
+	#endif
+
 	public UnityEngine.UI.InputField GameIdInput;
 	public UnityEngine.UI.Button InitializeButton;
 	public UnityEngine.UI.Button ShowDefaultAdButton;
@@ -16,10 +22,12 @@ public class UIController : MonoBehaviour
 	internal bool AdsInitialized;
 
 	private bool hasShownRewardedAd;  // since we have bug where zone is not reset, so in that case pass zone id
+	private float adsInitializeTime;
+	private bool adsInitialized;
 
 	private const string GameIdPlayerPrefsKey = "GameId";
-	private const string DefaultAdZoneIdPlayerPrefsKey = "DefaultAdZoneId";
-	private const string RewardedAdZoneIdPlayerPrefsKey = "RewardedAdZoneId";
+	private const string DefaultAdPlacementIdPlayerPrefsKey = "DefaultAdPlacementId";
+	private const string RewardedAdPlacementIdPlayerPrefsKey = "RewardedAdPlacementId";
 
 	private static UIController instance = null;
 	public static UIController Instance
@@ -47,26 +55,35 @@ public class UIController : MonoBehaviour
 		{
 			GameIdInput.text = PlayerPrefs.GetString (GameIdPlayerPrefsKey);
 		}
+		else
+		{
+			GameIdInput.text = DefaultGameId;
+		}
 
-		if (PlayerPrefs.HasKey (DefaultAdZoneIdPlayerPrefsKey)) {
-			DefaultAdZoneIdInput.text = PlayerPrefs.GetString (DefaultAdZoneIdPlayerPrefsKey);
+		if (PlayerPrefs.HasKey (DefaultAdPlacementIdPlayerPrefsKey))
+		{
+			DefaultAdZoneIdInput.text = PlayerPrefs.GetString (DefaultAdPlacementIdPlayerPrefsKey);
 		}
 		else
 		{
-			DefaultAdZoneIdInput.text = "defaultZone";
+			DefaultAdZoneIdInput.text = "video";
 		}
 
-		if (PlayerPrefs.HasKey (RewardedAdZoneIdPlayerPrefsKey)) {
-			RewardedAdZoneIdInput.text = PlayerPrefs.GetString (RewardedAdZoneIdPlayerPrefsKey);
+		if (PlayerPrefs.HasKey (RewardedAdPlacementIdPlayerPrefsKey))
+		{
+			RewardedAdZoneIdInput.text = PlayerPrefs.GetString (RewardedAdPlacementIdPlayerPrefsKey);
 		}
 		else
 		{
-			RewardedAdZoneIdInput.text = "rewardedVideoZone";
+			RewardedAdZoneIdInput.text = "rewardedVideo";
 		}
 	}
 
 	void Update ()
 	{
+		if (!adsInitialized && Main.AdPlacementReady (DefaultAdZoneIdInput.text))
+			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
+
 		UpdateUI ();
 	}
 	
@@ -74,8 +91,8 @@ public class UIController : MonoBehaviour
 	{
 		GameIdInput.interactable = !AdsInitialized;
 		InitializeButton.interactable = !AdsInitialized;
-		ShowDefaultAdButton.interactable = AdsInitialized;
-		ShowRewardedAdButton.interactable = AdsInitialized;
+		ShowDefaultAdButton.interactable = AdsInitialized && Main.AdPlacementReady(DefaultAdZoneIdInput.text);
+		ShowRewardedAdButton.interactable = AdsInitialized && Main.AdPlacementReady(RewardedAdZoneIdInput.text);
 	}
 
 	public void Log (string text)
@@ -87,20 +104,32 @@ public class UIController : MonoBehaviour
 	{
 		Main.InitializeAds (GameIdInput.text, TestModeToggle.isOn);
 		PlayerPrefs.SetString (GameIdPlayerPrefsKey, GameIdInput.text);
-		PlayerPrefs.SetString (DefaultAdZoneIdPlayerPrefsKey, DefaultAdZoneIdInput.text);
-		PlayerPrefs.SetString (RewardedAdZoneIdPlayerPrefsKey, RewardedAdZoneIdInput.text);
+		PlayerPrefs.SetString (DefaultAdPlacementIdPlayerPrefsKey, DefaultAdZoneIdInput.text);
+		PlayerPrefs.SetString (RewardedAdPlacementIdPlayerPrefsKey, RewardedAdZoneIdInput.text);
+
+		adsInitializeTime = Time.time;
+		Invoke ("CheckForAdsInitialized", 5);
+	}
+
+	private void CheckForAdsInitialized()
+	{
+		if (!adsInitialized)
+		{
+			float timeSinceInitialize = Time.time - adsInitializeTime;
+			if (timeSinceInitialize > 30)
+			{
+				Log("Failed to initialize ads withing 30 seconds. Please verify you entered correct game id and placement ids and/or check device log for additional information");
+				return;
+			}
+
+			Log (string.Format("Initializing - {0:#} secs...", timeSinceInitialize));
+			Invoke("CheckForAdsInitialized", 5);
+		}
 	}
 
 	public void ShowDefaultAd ()
 	{
-		if (!hasShownRewardedAd)
-		{
-			Main.ShowAd ();  // we want to make sure this also works, as game devs might typically show ads this way
-		}
-		else
-		{
-			Main.ShowAd (DefaultAdZoneIdInput.text);
-		}
+		Main.ShowAd ();  // we want to make sure this also works, as game devs might typically show ads this way
 	}
 
 	public void ShowRewardedAd ()

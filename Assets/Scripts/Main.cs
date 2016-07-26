@@ -34,7 +34,7 @@ public class Main : MonoBehaviour
 			return;
 		}
 
-		Log (string.Format ("Initializing ads for game id {0}", gameId));
+		Log (string.Format ("Initializing ads for game id {0}...", gameId));
 		Advertisement.Initialize (gameId, testMode);
 	}
 
@@ -88,5 +88,9 @@ public class Main : MonoBehaviour
 			ui.Log (text);
 		}
 	}
-}
 
+	public static bool AdPlacementReady(string id)
+	{
+		return Advertisement.IsReady (id);
+	}
+}

@@ -6,9 +6,9 @@ using UnityEngine.Advertisements;
 public class UIController : MonoBehaviour
 {
 	#if UNITY_ANDROID
-	public const string AdsGameId = "14851";
+	private const string AdsGameId = "14851";
 	#else
-	public const string AdsGameId = "14850";
+	private const string AdsGameId = "14850";
 	#endif
 
 	public UnityEngine.UI.InputField GameIdInput;
@@ -65,7 +65,7 @@ public class UIController : MonoBehaviour
 		UpdateUI ();
 	}
 
-	public void UpdateUI ()
+	private void UpdateUI ()
 	{
 		GameIdInput.interactable = !adsInitialized;
 		InitializeButton.interactable = !adsInitialized;
@@ -73,14 +73,14 @@ public class UIController : MonoBehaviour
 		ShowRewardedAdButton.interactable = adsInitialized && AdPlacementReady(RewardedAdZoneIdInput.text);
 	}
 
-	public void Log (string message)
+	private void Log (string message)
 	{
 		string text = string.Format ("{0:HH:mm:ss} {1}", DateTime.Now, message);
 		Debug.Log ("=== " + text + " ===");
 		LogText.text = string.Format ("{0}\n{1}", text, LogText.text);
 	}
 
-	public void InitializeAds ()
+	public void InitializeAdsButtonClicked ()
 	{
 		InitializeAds (GameIdInput.text, TestModeToggle.isOn);
 		PlayerPrefs.SetString (GameIdPlayerPrefsKey, GameIdInput.text);
@@ -106,33 +106,33 @@ public class UIController : MonoBehaviour
 		}
 	}
 
-	public void ShowDefaultAd ()
+	public void ShowDefaultAdButtonClicked ()
 	{
 		ShowAd ();  // we want to make sure this also works, as game devs might typically show ads this way
 	}
 
-	public void ShowRewardedAd ()
+	public void ShowRewardedAdButtonClicked ()
 	{
 		ShowAd (RewardedAdZoneIdInput.text);
 	}
 
-	public void ShowCoroutineAd ()
+	public void ShowCoroutineAdButtonClicked ()
 	{
 		StopAllCoroutines();
 		StartCoroutine(ShowAdCouroutine());
 	}
 
-	public void ShowConfig ()
+	public void ShowConfigButtonClicked ()
 	{
 		ConfigPanel.SetActive (true);
 	}
 
-	public void HideConfig ()
+	public void HideConfigButtonClicked ()
 	{
 		ConfigPanel.SetActive (false);
 	}
 
-	public void Quit ()
+	public void QuitButtonClicked ()
 	{
 		Application.Quit ();
 	}

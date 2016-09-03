@@ -6,9 +6,9 @@ using UnityEngine.Advertisements;
 public class UIController : MonoBehaviour
 {
 	#if UNITY_ANDROID
-	private const string AdsGameId = "14851";
+	private const string AdsGameId = "";
 	#else
-	private const string AdsGameId = "14850";
+	private const string AdsGameId = "";
 	#endif
 
 	public UnityEngine.UI.InputField GameIdInput;
@@ -17,9 +17,8 @@ public class UIController : MonoBehaviour
 	public UnityEngine.UI.Button ShowRewardedAdButton;
 	public UnityEngine.UI.Text LogText;
 	public GameObject ConfigPanel;
-	public UnityEngine.UI.InputField RewardedAdZoneIdInput;
+	public UnityEngine.UI.InputField RewardedAdPlacementIdInput;
 	public UnityEngine.UI.Toggle TestModeToggle;
-	public Transform BackgroundImage;
 
 	private float adsInitializeTime;
 	private bool adsInitialized;
@@ -29,13 +28,8 @@ public class UIController : MonoBehaviour
 
 	void Start ()
 	{
+		ConfigPanel.SetActive (false);
 		Log (string.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Advertisement.version));
-
-		// manually scale background picture
-		float scaleX = (0.75f/960) * (float)Screen.width;
-		float scaleY = (0.75f/375) * (float)Screen.height;
-		float scale = Mathf.Max (scaleX, scaleY);
-		BackgroundImage.localScale = new Vector2 (scale, scale);
 
 		ConfigPanel.SetActive (false);
 		if (PlayerPrefs.HasKey (GameIdPlayerPrefsKey))
@@ -49,28 +43,12 @@ public class UIController : MonoBehaviour
 
 		if (PlayerPrefs.HasKey (RewardedAdPlacementIdPlayerPrefsKey))
 		{
-			RewardedAdZoneIdInput.text = PlayerPrefs.GetString (RewardedAdPlacementIdPlayerPrefsKey);
+			RewardedAdPlacementIdInput.text = PlayerPrefs.GetString (RewardedAdPlacementIdPlayerPrefsKey);
 		}
 		else
 		{
-			RewardedAdZoneIdInput.text = "rewardedVideo";
+			RewardedAdPlacementIdInput.text = "rewardedVideo";
 		}
-	}
-
-	void Update ()
-	{
-		if (!adsInitialized && AdPlacementReady ())
-			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
-
-		UpdateUI ();
-	}
-
-	private void UpdateUI ()
-	{
-		GameIdInput.interactable = !adsInitialized;
-		InitializeButton.interactable = !adsInitialized;
-		ShowDefaultAdButton.interactable = adsInitialized && AdPlacementReady();
-		ShowRewardedAdButton.interactable = adsInitialized && AdPlacementReady(RewardedAdZoneIdInput.text);
 	}
 
 	private void Log (string message)
@@ -80,11 +58,28 @@ public class UIController : MonoBehaviour
 		LogText.text = string.Format ("{0}\n{1}", text, LogText.text);
 	}
 
+	void Update ()
+	{
+		if (!adsInitialized && Advertisement.IsReady ())
+			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
+
+		UpdateUI ();
+	}
+
+	private void UpdateUI ()
+	{
+		GameIdInput.interactable = !adsInitialized;
+		InitializeButton.interactable = !adsInitialized;
+		TestModeToggle.interactable = !adsInitialized;
+		ShowDefaultAdButton.interactable = adsInitialized && Advertisement.IsReady ();
+		ShowRewardedAdButton.interactable = adsInitialized && (RewardedAdPlacementReady () != null);
+	}
+
 	public void InitializeAdsButtonClicked ()
 	{
 		InitializeAds (GameIdInput.text, TestModeToggle.isOn);
 		PlayerPrefs.SetString (GameIdPlayerPrefsKey, GameIdInput.text);
-		PlayerPrefs.SetString (RewardedAdPlacementIdPlayerPrefsKey, RewardedAdZoneIdInput.text);
+		PlayerPrefs.SetString (RewardedAdPlacementIdPlayerPrefsKey, RewardedAdPlacementIdInput.text);
 
 		adsInitializeTime = Time.time;
 		Invoke ("CheckForAdsInitialized", 5);
@@ -113,7 +108,16 @@ public class UIController : MonoBehaviour
 
 	public void ShowRewardedAdButtonClicked ()
 	{
-		ShowAd (RewardedAdZoneIdInput.text);
+		string rewardedPlacementId = RewardedAdPlacementReady ();
+
+		if (string.IsNullOrEmpty (rewardedPlacementId))
+		{
+			Log ("Rewarded ad not ready");
+		}
+		else
+		{
+			ShowAd (rewardedPlacementId);
+		}
 	}
 
 	public void ShowCoroutineAdButtonClicked ()
@@ -143,7 +147,8 @@ public class UIController : MonoBehaviour
 
 		if (!Advertisement.isInitialized)
 		{
-			Advertisement.Initialize(AdsGameId, true);
+			Log ("Initializing ads from coroutine...");
+			Advertisement.Initialize(GameIdInput.text, TestModeToggle.isOn);
 		}
 
 		while (!Advertisement.IsReady())
@@ -151,10 +156,9 @@ public class UIController : MonoBehaviour
 			float time = Time.time - startTime;
 			yield return new WaitForSeconds(0.5f);
 
-			// if unable to load the ad before timeout, give up and give the player their reward anyway
 			if (time > 30.0f)
 			{
-				Log ("Failed to initialize ads");
+				Log ("Failed to initialize ads, please verify that you entered correct game id");
 				yield break;
 			}
 		}
@@ -213,6 +217,16 @@ public class UIController : MonoBehaviour
 		{
 			resultCallback = ShowAdResultCallback
 		};
+
+		if (placementId == null)
+		{
+			Log ("Showing ad for default placement");
+		}
+		else
+		{
+			Log (string.Format ("Showing ad for placement '{0}'", placementId));
+		}
+
 		Advertisement.Show (placementId, options);
 	}
 
@@ -221,13 +235,17 @@ public class UIController : MonoBehaviour
 		Log ("Ad completed with result: " + result);
 	}
 
-	private bool AdPlacementReady()
+	private string RewardedAdPlacementReady ()
 	{
-		return Advertisement.IsReady ();
-	}
+		// default rewarded placement id has changed over time, check each of these
+		string[] placementIds = { RewardedAdPlacementIdInput.text, "rewardedVideo", "rewardedVideoZone", "incentivizedZone" };
 
-	private bool AdPlacementReady(string id)
-	{
-		return Advertisement.IsReady (id);
+		foreach (var placementId in placementIds)
+		{
+			if (Advertisement.IsReady (placementId))
+				return placementId;
+		}
+
+		return null;
 	}
 }

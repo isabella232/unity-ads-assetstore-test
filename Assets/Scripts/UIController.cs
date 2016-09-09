@@ -19,6 +19,7 @@ public class UIController : MonoBehaviour
 	public GameObject ConfigPanel;
 	public UnityEngine.UI.InputField RewardedAdPlacementIdInput;
 	public UnityEngine.UI.Toggle TestModeToggle;
+	public UnityEngine.UI.Text ToggleAudioButtonText;
 
 	private float adsInitializeTime;
 	private bool adsInitialized;
@@ -165,7 +166,7 @@ public class UIController : MonoBehaviour
 
 		ShowOptions options = new ShowOptions();
 		options.resultCallback = ShowAdResultCallback;
-		Advertisement.Show(options);
+		Advertisement.Show(null, options);
 	}
 
 	private void InitializeAds (string gameId, bool testMode)
@@ -247,5 +248,21 @@ public class UIController : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	public void ToggleAudio()
+	{
+		var audio = this.GetComponent<AudioSource>();
+
+		if (audio.isPlaying)
+		{
+			audio.Stop();
+			ToggleAudioButtonText.text = "Play audio";
+		}
+		else
+		{
+			audio.Play();
+			ToggleAudioButtonText.text = "Mute audio";
+		}
 	}
 }

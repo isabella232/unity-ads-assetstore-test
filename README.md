@@ -5,9 +5,10 @@ Test project for Unity Ads SDK using Asset Store package. Project is maintained 
 ## How to use this project
 
 1. Open project in Unity
-1. Optionally open MainScene
+1. Open MainScene
 1. Open Asset Store window
 1. Search for "Unity Ads" and download/import either Unity Ads SDK 1.x or 2.x
+1. Set `UNITY_ADS` scripting define, either in Player Settings, or from `File->AutoBuilder->Enable Ads` menu
 1. Play in editor or deploy to your Android or iOS device
 
 ## Support

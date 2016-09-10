@@ -24,6 +24,13 @@ public static class AutoBuilder
 		return scenes;
 	}
 
+	[MenuItem("File/AutoBuilder/Enable Ads")]
+	static void EnableAds ()
+	{
+		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.Android, "UNITY_ADS");
+		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.iOS, "UNITY_ADS");
+	}
+
 	[MenuItem("File/AutoBuilder/Android")]
 	static void PerformAndroidBuild ()
 	{

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+#if UNITY_ADS
 using UnityEngine.Advertisements;
+#endif
 
 public class UIController : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class UIController : MonoBehaviour
 	public UnityEngine.UI.Button InitializeButton;
 	public UnityEngine.UI.Button ShowDefaultAdButton;
 	public UnityEngine.UI.Button ShowRewardedAdButton;
+	public UnityEngine.UI.Button ShowCoroutineAdButton;
 	public UnityEngine.UI.Text LogText;
 	public GameObject ConfigPanel;
 	public UnityEngine.UI.InputField RewardedAdPlacementIdInput;
@@ -22,7 +25,7 @@ public class UIController : MonoBehaviour
 	public UnityEngine.UI.Text ToggleAudioButtonText;
 
 	private float adsInitializeTime;
-	private bool adsInitialized;
+	private bool adsInitialized = false;
 
 	private const string GameIdPlayerPrefsKey = "GameId";
 	private const string RewardedAdPlacementIdPlayerPrefsKey = "RewardedAdPlacementId";
@@ -30,6 +33,12 @@ public class UIController : MonoBehaviour
 	void Start ()
 	{
 		ConfigPanel.SetActive (false);
+#if !UNITY_ADS
+		Log ("Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it");
+		UpdateUI ();
+		InitializeButton.interactable = false;
+		ShowCoroutineAdButton.interactable = false;
+#else
 		Log (string.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Advertisement.version));
 
 		ConfigPanel.SetActive (false);
@@ -50,6 +59,7 @@ public class UIController : MonoBehaviour
 		{
 			RewardedAdPlacementIdInput.text = "rewardedVideo";
 		}
+#endif
 	}
 
 	private void Log (string message)
@@ -59,12 +69,35 @@ public class UIController : MonoBehaviour
 		LogText.text = string.Format ("{0}\n{1}", text, LogText.text);
 	}
 
-	void Update ()
+	public void ShowConfigButtonClicked ()
 	{
-		if (!adsInitialized && Advertisement.IsReady ())
-			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
+		ConfigPanel.SetActive (true);
+	}
 
-		UpdateUI ();
+	public void HideConfigButtonClicked ()
+	{
+		ConfigPanel.SetActive (false);
+	}
+
+	public void QuitButtonClicked ()
+	{
+		Application.Quit ();
+	}
+
+	public void ToggleAudio ()
+	{
+		var audio = this.GetComponent<AudioSource> ();
+
+		if (audio.isPlaying)
+		{
+			audio.Stop ();
+			ToggleAudioButtonText.text = "Play audio";
+		}
+		else
+		{
+			audio.Play ();
+			ToggleAudioButtonText.text = "Mute audio";
+		}
 	}
 
 	private void UpdateUI ()
@@ -72,8 +105,44 @@ public class UIController : MonoBehaviour
 		GameIdInput.interactable = !adsInitialized;
 		InitializeButton.interactable = !adsInitialized;
 		TestModeToggle.interactable = !adsInitialized;
-		ShowDefaultAdButton.interactable = adsInitialized && Advertisement.IsReady ();
+		ShowDefaultAdButton.interactable = adsInitialized && DefaultAdPlacementReady ();
 		ShowRewardedAdButton.interactable = adsInitialized && (RewardedAdPlacementReady () != null);
+	}
+
+	private bool DefaultAdPlacementReady ()
+	{
+#if !UNITY_ADS
+		return false;
+#else
+		return Advertisement.IsReady ();
+#endif
+	}
+
+	private string RewardedAdPlacementReady ()
+	{
+#if !UNITY_ADS
+		return null;
+#else
+		// default rewarded placement id has changed over time, check each of these
+		string[] placementIds = { RewardedAdPlacementIdInput.text, "rewardedVideo", "rewardedVideoZone", "incentivizedZone" };
+
+		foreach (var placementId in placementIds)
+		{
+			if (Advertisement.IsReady (placementId))
+				return placementId;
+		}
+
+		return null;
+#endif
+	}
+
+#if UNITY_ADS
+	void Update ()
+	{
+		if (!adsInitialized && Advertisement.IsReady ())
+			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
+
+		UpdateUI ();
 	}
 
 	public void InitializeAdsButtonClicked ()
@@ -125,21 +194,6 @@ public class UIController : MonoBehaviour
 	{
 		StopAllCoroutines();
 		StartCoroutine(ShowAdCouroutine());
-	}
-
-	public void ShowConfigButtonClicked ()
-	{
-		ConfigPanel.SetActive (true);
-	}
-
-	public void HideConfigButtonClicked ()
-	{
-		ConfigPanel.SetActive (false);
-	}
-
-	public void QuitButtonClicked ()
-	{
-		Application.Quit ();
 	}
 
 	internal IEnumerator ShowAdCouroutine()
@@ -235,34 +289,5 @@ public class UIController : MonoBehaviour
 	{
 		Log ("Ad completed with result: " + result);
 	}
-
-	private string RewardedAdPlacementReady ()
-	{
-		// default rewarded placement id has changed over time, check each of these
-		string[] placementIds = { RewardedAdPlacementIdInput.text, "rewardedVideo", "rewardedVideoZone", "incentivizedZone" };
-
-		foreach (var placementId in placementIds)
-		{
-			if (Advertisement.IsReady (placementId))
-				return placementId;
-		}
-
-		return null;
-	}
-
-	public void ToggleAudio()
-	{
-		var audio = this.GetComponent<AudioSource>();
-
-		if (audio.isPlaying)
-		{
-			audio.Stop();
-			ToggleAudioButtonText.text = "Play audio";
-		}
-		else
-		{
-			audio.Play();
-			ToggleAudioButtonText.text = "Mute audio";
-		}
-	}
+#endif
 }

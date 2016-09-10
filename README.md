@@ -4,6 +4,12 @@ Test project for Unity Ads SDK using Asset Store package. Project is maintained 
 
 ## How to use this project
 
+First
+
+1. Switch to relevant repo branch, e.g. `5.0`, using e.g. `hg checkout 5.0` from command line (branch name indicates which Unity version is used to maintain project, can be opened in later Unity versions)
+
+Then
+
 1. Open project in Unity
 1. Open MainScene
 1. Open Asset Store window

@@ -35,6 +35,7 @@ public static class AutoBuilder
 	static void PerformAndroidBuild ()
 	{
 		EditorUserBuildSettings.SwitchActiveBuildTarget (BuildTarget.Android);
+		Directory.CreateDirectory ("Builds");
 		BuildPipeline.BuildPlayer (GetScenePaths (), "Builds/Android.apk", BuildTarget.Android, BuildOptions.None);
 	}
 
@@ -42,6 +43,7 @@ public static class AutoBuilder
 	static void PerformiOSBuild ()
 	{
 		EditorUserBuildSettings.SwitchActiveBuildTarget (BuildTarget.iOS);
+		Directory.CreateDirectory ("Builds");
 		BuildPipeline.BuildPlayer (GetScenePaths (), "Builds/iOS", BuildTarget.iOS, BuildOptions.None);
 	}
 }

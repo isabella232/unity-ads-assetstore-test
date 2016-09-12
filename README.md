@@ -19,6 +19,14 @@ Then
 
 Alternatively see `build.sh` script for how to automate importing and building project.
 
+## Logging
+
+Unity Ads related device logs are written with topic `UnityAds`, e.g. to filter relevant logs on Android, use:
+
+```
+$ adb logcat -v time UnityAds:V *:S
+```
+
 ## Support
 
 Please use <http://forum.unity3d.com/forums/unity-ads.67> for questions related to this project.

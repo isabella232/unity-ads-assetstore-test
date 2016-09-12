@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 using UnityEngine;
+
 #if UNITY_ADS
 using UnityEngine.Advertisements;
 #endif
@@ -22,6 +24,7 @@ public class UIController : MonoBehaviour
 	public GameObject ConfigPanel;
 	public UnityEngine.UI.InputField RewardedAdPlacementIdInput;
 	public UnityEngine.UI.Toggle TestModeToggle;
+	public UnityEngine.UI.Toggle DebugModeToggle;
 	public UnityEngine.UI.Text ToggleAudioButtonText;
 
 	private float adsInitializeTime;
@@ -38,6 +41,8 @@ public class UIController : MonoBehaviour
 		UpdateUI ();
 		InitializeButton.interactable = false;
 		ShowCoroutineAdButton.interactable = false;
+		TestModeToggle.interactable = false;
+		DebugModeToggle.interactable = false;
 #else
 		Log (string.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Advertisement.version));
 
@@ -59,6 +64,7 @@ public class UIController : MonoBehaviour
 		{
 			RewardedAdPlacementIdInput.text = "rewardedVideo";
 		}
+		DebugModeToggleClicked ();
 #endif
 	}
 
@@ -98,6 +104,35 @@ public class UIController : MonoBehaviour
 			audio.Play ();
 			ToggleAudioButtonText.text = "Mute audio";
 		}
+	}
+
+	public void DebugModeToggleClicked ()
+	{
+#if UNITY_ADS
+		if (Advertisement.version.CompareTo("2") > 0)
+		{
+			// using reflection for setting debugMode, to keep backwards compatible with SDK 1.x (which didn't have this property defined)
+			typeof(Advertisement).InvokeMember(
+				"debugMode",
+				BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Static,
+				null,
+				null,
+				new object[] { DebugModeToggle.isOn });
+
+			bool debugMode = (bool) typeof(Advertisement).InvokeMember(
+				"debugMode",
+				BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static,
+				null,
+				null,
+				null);
+
+			Log ("Debug mode: " + debugMode);
+		}
+		else
+		{
+			// ignore debug logging on SDK 1.x (at least for now)
+		}
+#endif
 	}
 
 	private void UpdateUI ()

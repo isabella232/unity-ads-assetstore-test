@@ -37,7 +37,7 @@ public class UIController : MonoBehaviour
 	{
 		ConfigPanel.SetActive (false);
 #if !UNITY_ADS
-		Log ("Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it");
+		Log ("Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it)");
 		UpdateUI ();
 		InitializeButton.interactable = false;
 		ShowCoroutineAdButton.interactable = false;
@@ -109,29 +109,9 @@ public class UIController : MonoBehaviour
 	public void DebugModeToggleClicked ()
 	{
 #if UNITY_ADS
-		if (Advertisement.version.CompareTo("2") > 0)
-		{
-			// using reflection for setting debugMode, to keep backwards compatible with SDK 1.x (which didn't have this property defined)
-			typeof(Advertisement).InvokeMember(
-				"debugMode",
-				BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Static,
-				null,
-				null,
-				new object[] { DebugModeToggle.isOn });
-
-			bool debugMode = (bool) typeof(Advertisement).InvokeMember(
-				"debugMode",
-				BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static,
-				null,
-				null,
-				null);
-
-			Log ("Debug mode: " + debugMode);
-		}
-		else
-		{
-			// ignore debug logging on SDK 1.x (at least for now)
-		}
+		// TODO: Doesn't work with SDK 1.5 - probably SDK specific conditional?
+		Advertisement.debugMode = DebugModeToggle.isOn;
+		Log ("Debug mode: " + Advertisement.debugMode);
 #endif
 	}
 

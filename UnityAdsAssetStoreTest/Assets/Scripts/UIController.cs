@@ -26,16 +26,24 @@ public class UIController : MonoBehaviour
 	public UnityEngine.UI.Toggle TestModeToggle;
 	public UnityEngine.UI.Toggle DebugModeToggle;
 	public UnityEngine.UI.Text ToggleAudioButtonText;
+	public GameObject AdvancedModePanel;
+	public UnityEngine.UI.Toggle AdvancedModeToggle;
+	public UnityEngine.UI.Text FPS;
+	public LoadTesting LoadTesting; // need this to call coroutines
 
+	private static UIController instance = null;
 	private float adsInitializeTime;
 	private bool adsInitialized = false;
+	private float deltaTime; // for FPS
 
 	private const string GameIdPlayerPrefsKey = "GameId";
 	private const string RewardedAdPlacementIdPlayerPrefsKey = "RewardedAdPlacementId";
 
 	void Start ()
 	{
+		InvokeRepeating ("UpdateFPSText", 1, 1);
 		ConfigPanel.SetActive (false);
+		AdvancedModePanel.SetActive (AdvancedModeToggle.isOn);
 #if !UNITY_ADS
 		Log ("Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it)");
 		UpdateUI ();
@@ -68,7 +76,19 @@ public class UIController : MonoBehaviour
 #endif
 	}
 
-	private void Log (string message)
+	public static UIController Instance
+	{
+		get
+		{
+			if (instance == null)
+			{
+				instance = FindObjectOfType<UIController> ();
+			}
+			return instance;
+		}
+	}
+
+	public void Log (string message)
 	{
 		string text = string.Format ("{0:HH:mm:ss} {1}", DateTime.Now, message);
 		Debug.Log ("=== " + text + " ===");
@@ -106,13 +126,28 @@ public class UIController : MonoBehaviour
 		}
 	}
 
+	public void AllocateMemory()
+	{
+		LoadTesting.Allocate100MB ();
+	}
+
+	public void ToggleCPULoad()
+	{
+		LoadTesting.ToggleCPULoad();
+	}
+
 	public void DebugModeToggleClicked ()
 	{
 #if UNITY_ADS
-		// TODO: Doesn't work with SDK 1.5 - probably SDK specific conditional?
+		// TODO: Doesn't work with SDK 1.5 - SDK specific conditional could solve this?
 		Advertisement.debugMode = DebugModeToggle.isOn;
 		Log ("Debug mode: " + Advertisement.debugMode);
 #endif
+	}
+
+	public void AdvancedModeToggleClicked ()
+	{
+		AdvancedModePanel.SetActive (AdvancedModeToggle.isOn);
 	}
 
 	private void UpdateUI ()
@@ -151,15 +186,25 @@ public class UIController : MonoBehaviour
 #endif
 	}
 
-#if UNITY_ADS
 	void Update ()
 	{
+		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+
+#if UNITY_ADS
 		if (!adsInitialized && Advertisement.IsReady ())
 			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
+#endif
 
 		UpdateUI ();
 	}
 
+	private void UpdateFPSText()
+	{
+		float fps = 1.0f / deltaTime;
+		FPS.text = fps.ToString("FPS: 0.0");
+	}
+
+#if UNITY_ADS
 	public void InitializeAdsButtonClicked ()
 	{
 		InitializeAds (GameIdInput.text, TestModeToggle.isOn);

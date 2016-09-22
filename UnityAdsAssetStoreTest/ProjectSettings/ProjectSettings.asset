@@ -140,7 +140,7 @@ PlayerSettings:
   m_BuildTargetIcons:
   - m_BuildTarget: 
     m_Icons:
-    - m_Icon: {fileID: 0}
+    - m_Icon: {fileID: 2800000, guid: b910ee3a464644dd8a87cadfab2eae37, type: 3}
       m_Size: 0
   m_BuildTargetBatching:
   - m_BuildTarget: Standalone
@@ -262,7 +262,9 @@ PlayerSettings:
   psp2InfoBarColor: 0
   psmSplashimage: {fileID: 0}
   spritePackerPolicy: 
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    4: UNITY_ADS
+    7: UNITY_ADS
   metroPackageName: unity-ads-public-test2
   metroPackageLogo: 
   metroPackageLogo140: 

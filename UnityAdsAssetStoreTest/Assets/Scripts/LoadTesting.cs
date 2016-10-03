@@ -24,7 +24,7 @@ public class LoadTesting : MonoBehaviour
 	public void ToggleCPULoad ()
 	{
 		var prefab = Resources.Load ("UnityBall");
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 50; i++)
 		{
 			Instantiate (
 				prefab, 
@@ -44,7 +44,7 @@ public class LoadTesting : MonoBehaviour
 				{
 					memoryConsumingArrays[i][j] = (byte)UnityEngine.Random.Range (0, 255);
 
-					if (j % (bytesToAllocate / 10) == 0)
+					if (j % (bytesToAllocate / 20) == 0)
 					{
 						yield return null;
 					}

@@ -76,7 +76,7 @@ if [[ $PLATFORMS =~ .*android.* ]]; then
 
     # TODO: Deploy to device
     # echo Installing on Android device...
-    # adb install -r Builds/Android.apk
+    # adb install -r UnityAdsAssetStoreTest/Builds/Android.apk
     # adb shell am start -S -a android.intent.action.MAIN -n com.unity3d.UnityAdsAssetStoreTest/com.unity3d.player.UnityPlayerActivity
 fi
 
@@ -99,6 +99,6 @@ if [[ $PLATFORMS =~ .*ios.* ]]; then
     fi
 
     # TODO: Deploy to device
-    # open Builds/iOS/Unity-iPhone.xcodeproj
-    # xcodebuild -project Builds/iOS/Unity-iPhone.xcodeproj
+    # open UnityAdsAssetStoreTest/Builds/iOS/Unity-iPhone.xcodeproj
+    # xcodebuild -project UnityAdsAssetStoreTest/Builds/iOS/Unity-iPhone.xcodeproj
 fi

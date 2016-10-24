@@ -188,6 +188,13 @@ public class UIController : MonoBehaviour
 
 	void Update ()
 	{
+		if (Input.GetKeyDown (KeyCode.Escape))
+		{
+			// use back button on Android to close config
+			if (ConfigPanel.activeSelf)
+				HideConfigButtonClicked ();
+		}
+
 		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 
 #if UNITY_ADS

@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Reflection;
 using UnityEngine;
-
-#if UNITY_ADS
-using UnityEngine.Advertisements;
-#endif
 
 public class UIController : MonoBehaviour
 {
-	#if UNITY_ANDROID
-	private const string AdsGameId = "";
-	#else
-	private const string AdsGameId = "";
-	#endif
-
 	public UnityEngine.UI.InputField GameIdInput;
 	public UnityEngine.UI.Button InitializeButton;
 	public UnityEngine.UI.Button ShowDefaultAdButton;
@@ -44,36 +33,41 @@ public class UIController : MonoBehaviour
 		InvokeRepeating ("UpdateFPSText", 1, 1);
 		ConfigPanel.SetActive (false);
 		AdvancedModePanel.SetActive (AdvancedModeToggle.isOn);
-#if !UNITY_ADS
-		Log ("Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it)");
-		UpdateUI ();
-		InitializeButton.interactable = false;
-		ShowCoroutineAdButton.interactable = false;
-		TestModeToggle.interactable = false;
-		DebugModeToggle.interactable = false;
-#else
-		Log (string.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Advertisement.version));
 
-		ConfigPanel.SetActive (false);
-		if (PlayerPrefs.HasKey (GameIdPlayerPrefsKey))
+		string message;
+		if (Ads.IsEnabledAndSupported (out message))
 		{
-			GameIdInput.text = PlayerPrefs.GetString (GameIdPlayerPrefsKey);
+			Log (string.Format ("Unity version: {0}, Ads version: {1}", Application.unityVersion, Ads.Version));
+
+			ConfigPanel.SetActive (false);
+			if (PlayerPrefs.HasKey (GameIdPlayerPrefsKey))
+			{
+				GameIdInput.text = PlayerPrefs.GetString (GameIdPlayerPrefsKey);
+			}
+			else
+			{
+				GameIdInput.text = Ads.AdsGameId;
+			}
+
+			if (PlayerPrefs.HasKey (RewardedAdPlacementIdPlayerPrefsKey))
+			{
+				RewardedAdPlacementIdInput.text = PlayerPrefs.GetString (RewardedAdPlacementIdPlayerPrefsKey);
+			}
+			else
+			{
+				RewardedAdPlacementIdInput.text = "rewardedVideo";
+			}
+			DebugModeToggleClicked ();
 		}
 		else
 		{
-			GameIdInput.text = AdsGameId;
+			Log (message);
+			UpdateUI ();
+			InitializeButton.interactable = false;
+			ShowCoroutineAdButton.interactable = false;
+			TestModeToggle.interactable = false;
+			DebugModeToggle.interactable = false;
 		}
-
-		if (PlayerPrefs.HasKey (RewardedAdPlacementIdPlayerPrefsKey))
-		{
-			RewardedAdPlacementIdInput.text = PlayerPrefs.GetString (RewardedAdPlacementIdPlayerPrefsKey);
-		}
-		else
-		{
-			RewardedAdPlacementIdInput.text = "rewardedVideo";
-		}
-		DebugModeToggleClicked ();
-#endif
 	}
 
 	public static UIController Instance
@@ -138,11 +132,7 @@ public class UIController : MonoBehaviour
 
 	public void DebugModeToggleClicked ()
 	{
-#if UNITY_ADS
-		// TODO: Doesn't work with SDK 1.5 - SDK specific conditional could solve this?
-		Advertisement.debugMode = DebugModeToggle.isOn;
-		Log ("Debug mode: " + Advertisement.debugMode);
-#endif
+		Ads.SetDebugMode (DebugModeToggle.isOn);
 	}
 
 	public void AdvancedModeToggleClicked ()
@@ -155,35 +145,8 @@ public class UIController : MonoBehaviour
 		GameIdInput.interactable = !adsInitialized;
 		InitializeButton.interactable = !adsInitialized;
 		TestModeToggle.interactable = !adsInitialized;
-		ShowDefaultAdButton.interactable = adsInitialized && DefaultAdPlacementReady ();
-		ShowRewardedAdButton.interactable = adsInitialized && (RewardedAdPlacementReady () != null);
-	}
-
-	private bool DefaultAdPlacementReady ()
-	{
-#if !UNITY_ADS
-		return false;
-#else
-		return Advertisement.IsReady ();
-#endif
-	}
-
-	private string RewardedAdPlacementReady ()
-	{
-#if !UNITY_ADS
-		return null;
-#else
-		// default rewarded placement id has changed over time, check each of these
-		string[] placementIds = { RewardedAdPlacementIdInput.text, "rewardedVideo", "rewardedVideoZone", "incentivizedZone" };
-
-		foreach (var placementId in placementIds)
-		{
-			if (Advertisement.IsReady (placementId))
-				return placementId;
-		}
-
-		return null;
-#endif
+		ShowDefaultAdButton.interactable = adsInitialized && Ads.DefaultAdPlacementReady ();
+		ShowRewardedAdButton.interactable = adsInitialized && (Ads.RewardedAdPlacementReady (RewardedAdPlacementIdInput.text) != null);
 	}
 
 	void Update ()
@@ -198,7 +161,7 @@ public class UIController : MonoBehaviour
 		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 
 #if UNITY_ADS
-		if (!adsInitialized && Advertisement.IsReady ())
+		if (!adsInitialized && Ads.DefaultAdPlacementReady ())
 			adsInitialized = true; // has ads been available at some point? used to see if we managed to initialize correctly
 #endif
 
@@ -211,10 +174,9 @@ public class UIController : MonoBehaviour
 		FPS.text = fps.ToString("FPS: 0.0");
 	}
 
-#if UNITY_ADS
 	public void InitializeAdsButtonClicked ()
 	{
-		InitializeAds (GameIdInput.text, TestModeToggle.isOn);
+		Ads.InitializeAds (GameIdInput.text, TestModeToggle.isOn);
 		PlayerPrefs.SetString (GameIdPlayerPrefsKey, GameIdInput.text);
 		PlayerPrefs.SetString (RewardedAdPlacementIdPlayerPrefsKey, RewardedAdPlacementIdInput.text);
 
@@ -240,12 +202,12 @@ public class UIController : MonoBehaviour
 
 	public void ShowDefaultAdButtonClicked ()
 	{
-		ShowAd ();  // we want to make sure this also works, as game devs might typically show ads this way
+		Ads.ShowAd ();  // we want to make sure this also works, as game devs might typically show ads this way
 	}
 
 	public void ShowRewardedAdButtonClicked ()
 	{
-		string rewardedPlacementId = RewardedAdPlacementReady ();
+		string rewardedPlacementId = Ads.RewardedAdPlacementReady (RewardedAdPlacementIdInput.text);
 
 		if (string.IsNullOrEmpty (rewardedPlacementId))
 		{
@@ -253,7 +215,7 @@ public class UIController : MonoBehaviour
 		}
 		else
 		{
-			ShowAd (rewardedPlacementId);
+			Ads.ShowAd (rewardedPlacementId);
 		}
 	}
 
@@ -267,13 +229,13 @@ public class UIController : MonoBehaviour
 	{
 		float startTime = Time.time;
 
-		if (!Advertisement.isInitialized)
+		if (!Ads.IsInitialized)
 		{
 			Log ("Initializing ads from coroutine...");
-			Advertisement.Initialize(GameIdInput.text, TestModeToggle.isOn);
+			Ads.InitializeAds(GameIdInput.text, TestModeToggle.isOn);
 		}
 
-		while (!Advertisement.IsReady())
+		while (!Ads.DefaultAdPlacementReady ())
 		{
 			float time = Time.time - startTime;
 			yield return new WaitForSeconds(0.5f);
@@ -285,76 +247,6 @@ public class UIController : MonoBehaviour
 			}
 		}
 
-		ShowOptions options = new ShowOptions();
-		options.resultCallback = ShowAdResultCallback;
-		Advertisement.Show(null, options);
+		Ads.ShowAd ();
 	}
-
-	private void InitializeAds (string gameId, bool testMode)
-	{
-		if (!Advertisement.isSupported)
-		{
-			Log ("Ads not supported on this platform");
-			return;
-		}
-
-		if ((gameId == null) || (gameId.Trim ().Length == 0))
-		{
-			Log ("Please provide a game id");
-			return;
-		}
-
-		Log (string.Format ("Initializing ads for game id {0}...", gameId));
-		Advertisement.Initialize (gameId, testMode);
-	}
-
-	private void ShowAd ()
-	{
-		ShowAd (null);
-	}
-
-	private void ShowAd (string placementId)
-	{
-		if (!Advertisement.isInitialized)
-		{
-			Log ("Ads hasn't been initialized yet. Cannot show ad");
-			return;
-		}
-
-		if (!Advertisement.IsReady (placementId))
-		{
-			if (placementId == null)
-			{
-				Log ("Ads not ready for default placement. Please wait a few seconds and try again");
-			}
-			else
-			{
-				Log (string.Format("Ads not ready for placement '{0}'. Please wait a few seconds and try again", placementId));
-			}
-
-			return;
-		}
-
-		ShowOptions options = new ShowOptions
-		{
-			resultCallback = ShowAdResultCallback
-		};
-
-		if (placementId == null)
-		{
-			Log ("Showing ad for default placement");
-		}
-		else
-		{
-			Log (string.Format ("Showing ad for placement '{0}'", placementId));
-		}
-
-		Advertisement.Show (placementId, options);
-	}
-
-	private void ShowAdResultCallback(ShowResult result)
-	{
-		Log ("Ad completed with result: " + result);
-	}
-#endif
 }

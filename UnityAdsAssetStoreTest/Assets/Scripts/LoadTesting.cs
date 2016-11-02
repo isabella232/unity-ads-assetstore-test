@@ -49,7 +49,7 @@ public class LoadTesting : MonoBehaviour
 						yield return null;
 					}
 				}
-				UIController.Instance.Log (string.Format("Wrote randum bytes to memory block #{0}", i));
+				UIController.Instance.Log (string.Format("Wrote random bytes to memory block #{0}", i));
 				yield return null;
 			}
 			yield return null;

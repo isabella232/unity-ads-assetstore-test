@@ -132,7 +132,7 @@ public class Ads
 
         ShowOptions options = new ShowOptions
         {
-			gamerSid = "example",
+            gamerSid = "example_player_id",
             resultCallback = ShowAdResultCallback
         };
 

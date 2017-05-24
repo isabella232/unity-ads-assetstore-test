@@ -1,6 +1,6 @@
 # Unity Ads Asset Store test project
 
-Test project for Unity Ads SDK using Asset Store package. Project is maintained using Unity 5.0, however can be opened in any later Unity version.
+Test project for Unity Ads SDK using Asset Store package (<https://www.assetstore.unity3d.com/en/#!/content/66123>). Project is maintained using Unity 5.0, however can be opened in any later Unity version.
 
 ## How to use this project
 

@@ -6,7 +6,7 @@ Test project for Unity Ads SDK using Asset Store package (<https://www.assetstor
 
 First
 
-1. Switch to relevant repo branch, e.g. `5.0`, using e.g. `hg checkout 5.0` from command line (branch name indicates which Unity version is used to maintain project, can be opened in later Unity versions)
+1. Switch to relevant repo branch, e.g. `5.0`, using e.g. `git checkout 5.0` from command line (branch name indicates which Unity version is used to maintain project, can be opened in later Unity versions)
 
 Then
 

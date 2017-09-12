@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-#if UNITY_ADS
+#if UNITY_ADS_PACKAGE
 using UnityEngine.Advertisements;
 #endif
 
@@ -15,7 +15,7 @@ public class Ads
     {
         get
         {
-            #if UNITY_ADS
+            #if UNITY_ADS_PACKAGE
             return Advertisement.version;
             #else
             return string.Empty;
@@ -25,8 +25,8 @@ public class Ads
 
     public static bool IsEnabledAndSupported (out string message)
     {
-        #if !UNITY_ADS
-        message = "Ads not enabled. Set UNITY_ADS define (or use File->AutoBuilder menu to set it)";
+        #if !UNITY_ADS_PACKAGE
+        message = "Ads not enabled. Set UNITY_ADS_PACKAGE define (or use File->AutoBuilder menu to set it)";
         return false;
         #else
         #if UNITY_ANDROID || UNITY_IOS
@@ -41,7 +41,7 @@ public class Ads
 
     public static bool IsInitialized
     {
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         get { return Advertisement.isInitialized; }
         #else
         get { return false; }
@@ -50,7 +50,7 @@ public class Ads
 
     public static void SetDebugMode (bool value)
     {
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         // TODO: Doesn't work with SDK 1.5 - SDK specific conditional could solve this?
         Advertisement.debugMode = value;
         Log ("Debug mode: " + Advertisement.debugMode);
@@ -59,7 +59,7 @@ public class Ads
 
     public static bool DefaultAdPlacementReady ()
     {
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         return Advertisement.IsReady ();
         #else
         return false;
@@ -68,7 +68,7 @@ public class Ads
 
     public static string RewardedAdPlacementReady (string customRewardedPlacementId)
     {
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         // default rewarded placement id has changed over time, check each of these
         string[] placementIds = { customRewardedPlacementId, "rewardedVideo", "rewardedVideoZone", "incentivizedZone" };
 
@@ -96,7 +96,7 @@ public class Ads
             return;
         }
 
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         Log (string.Format ("Initializing ads for game id {0}...", gameId));
         Advertisement.Initialize (gameId, testMode);
         #endif
@@ -115,7 +115,7 @@ public class Ads
             return;
         }
 
-        #if UNITY_ADS
+        #if UNITY_ADS_PACKAGE
         if (!Advertisement.IsReady (placementId))
         {
             if (placementId == null)
@@ -149,7 +149,7 @@ public class Ads
         #endif
     }
 
-    #if UNITY_ADS
+    #if UNITY_ADS_PACKAGE
     private static void ShowAdResultCallback(ShowResult result)
     {
         Log ("Ad completed with result: " + result);

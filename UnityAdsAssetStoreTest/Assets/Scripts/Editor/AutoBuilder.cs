@@ -27,8 +27,8 @@ public static class AutoBuilder
 	[MenuItem("File/AutoBuilder/Enable Ads")]
 	static void EnableAds ()
 	{
-		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.Android, "UNITY_ADS");
-		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.iOS, "UNITY_ADS");
+		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.Android, "UNITY_ADS_PACKAGE");
+		PlayerSettings.SetScriptingDefineSymbolsForGroup (BuildTargetGroup.iOS, "UNITY_ADS_PACKAGE");
 	}
 
 	[MenuItem("File/AutoBuilder/Android")]

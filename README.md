@@ -1,12 +1,12 @@
 # Unity Ads Asset Store test project
 
-Test project for Unity Ads SDK using Asset Store package. Project is maintained using Unity 5.0, however can be opened in any later Unity version.
+Test project for Unity Ads SDK using Asset Store package (<https://www.assetstore.unity3d.com/en/#!/content/66123>). Project is maintained using Unity 5.0, however can be opened in any later Unity version.
 
 ## How to use this project
 
 First
 
-1. Switch to relevant repo branch, e.g. `5.0`, using e.g. `hg checkout 5.0` from command line (branch name indicates which Unity version is used to maintain project, can be opened in later Unity versions)
+1. Switch to relevant repo branch, e.g. `5.0`, using e.g. `git checkout 5.0` from command line (branch name indicates which Unity version is used to maintain project, can be opened in later Unity versions)
 
 Then
 
@@ -14,7 +14,7 @@ Then
 1. Open MainScene
 1. Open Asset Store window
 1. Search for "Unity Ads" and download/import either Unity Ads SDK 1.x or 2.x
-1. Set `UNITY_ADS` scripting define, either in Player Settings, or from `File->AutoBuilder->Enable Ads` menu
+1. Set `UNITY_ADS_PACKAGE` scripting define, either in Player Settings, or from `File->AutoBuilder->Enable Ads` menu
 1. Play in editor or deploy to your Android or iOS device
 
 Alternatively see `build.sh` script for how to automate importing and building project.

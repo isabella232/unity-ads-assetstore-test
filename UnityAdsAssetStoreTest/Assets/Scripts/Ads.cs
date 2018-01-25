@@ -107,7 +107,7 @@ public class Ads
         ShowAd (null);
     }
 
-    public static void ShowAd (string placementId)
+    public static void ShowAd (string placementId, string sid = "")
     {
         if (!IsInitialized)
         {
@@ -132,7 +132,7 @@ public class Ads
 
         ShowOptions options = new ShowOptions
         {
-            gamerSid = "example_player_id",
+            gamerSid = sid,
             resultCallback = ShowAdResultCallback
         };
 
@@ -144,6 +144,8 @@ public class Ads
         {
             Log (string.Format ("Showing ad for placement '{0}'", placementId));
         }
+
+		MetaData newmetadata = new MetaData("player");
 
         Advertisement.Show (placementId, options);
         #endif

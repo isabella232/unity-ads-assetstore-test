@@ -19,6 +19,7 @@ public class UIController : MonoBehaviour
     public UnityEngine.UI.Toggle AdvancedModeToggle;
     public UnityEngine.UI.Text FPS;
     public LoadTesting LoadTesting; // need this to call coroutines
+    public UnityEngine.UI.InputField SIDInput;
 
     private static UIController instance = null;
     private float adsInitializeTime;
@@ -215,7 +216,7 @@ public class UIController : MonoBehaviour
         }
         else
         {
-            Ads.ShowAd (rewardedPlacementId);
+            Ads.ShowAd (rewardedPlacementId, SIDInput.text);
         }
     }
 

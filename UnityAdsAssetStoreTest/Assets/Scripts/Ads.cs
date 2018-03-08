@@ -154,6 +154,7 @@ public class Ads
     #if UNITY_ADS_PACKAGE
     private static void ShowAdResultCallback(ShowResult result)
     {
+        if (result == ShowResult.Finished) UIController.Instance.AddOneWatchedAd();
         Log ("Ad completed with result: " + result);
     }
     #endif

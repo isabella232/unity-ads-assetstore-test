@@ -9,6 +9,7 @@ public class UIController : MonoBehaviour
     public UnityEngine.UI.Button ShowDefaultAdButton;
     public UnityEngine.UI.Button ShowRewardedAdButton;
     public UnityEngine.UI.Button ShowCoroutineAdButton;
+    public UnityEngine.UI.Button ShowEndlessAdsButton;
     public UnityEngine.UI.Text LogText;
     public GameObject ConfigPanel;
     public UnityEngine.UI.InputField RewardedAdPlacementIdInput;
@@ -20,11 +21,16 @@ public class UIController : MonoBehaviour
     public UnityEngine.UI.Text FPS;
     public LoadTesting LoadTesting; // need this to call coroutines
     public UnityEngine.UI.InputField SIDInput;
+    public UnityEngine.UI.Text howManyAdsWatchedText;
+
+    private int howManyAdsWatched = 0;
 
     private static UIController instance = null;
     private float adsInitializeTime;
     private bool adsInitialized = false;
     private float deltaTime; // for FPS
+    private bool showingEndlessly = false;
+
 
     private const string GameIdPlayerPrefsKey = "GameId";
     private const string RewardedAdPlacementIdPlayerPrefsKey = "RewardedAdPlacementId";
@@ -68,6 +74,7 @@ public class UIController : MonoBehaviour
             ShowCoroutineAdButton.interactable = false;
             TestModeToggle.interactable = false;
             DebugModeToggle.interactable = false;
+            ShowEndlessAdsButton.interactable = false;
         }
     }
 
@@ -148,6 +155,7 @@ public class UIController : MonoBehaviour
         TestModeToggle.interactable = !adsInitialized;
         ShowDefaultAdButton.interactable = adsInitialized && Ads.DefaultAdPlacementReady ();
         ShowRewardedAdButton.interactable = adsInitialized && (Ads.RewardedAdPlacementReady (RewardedAdPlacementIdInput.text) != null);
+        ShowEndlessAdsButton.interactable = adsInitialized && (Ads.RewardedAdPlacementReady(RewardedAdPlacementIdInput.text) != null);
     }
 
     void Update ()
@@ -224,6 +232,30 @@ public class UIController : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(ShowAdCouroutine());
+    }
+
+    public void watchEndlessButtonClicked() 
+    {
+        if (!showingEndlessly) StartCoroutine(ShowEndlessAds());
+    }
+
+    public void AddOneWatchedAd() {
+        howManyAdsWatched++;
+        howManyAdsWatchedText.text = howManyAdsWatched.ToString();
+    }
+
+    internal IEnumerator ShowEndlessAds() 
+    {
+        showingEndlessly = true;
+        while (showingEndlessly)
+        {
+            yield return null;
+            // Tests if ads are ready to be shown
+            if (Ads.IsInitialized && Ads.RewardedAdPlacementReady(RewardedAdPlacementIdInput.text) != null) 
+            {
+                Ads.ShowAd(RewardedAdPlacementIdInput.text,SIDInput.text);
+            } 
+        }
     }
 
     internal IEnumerator ShowAdCouroutine()
